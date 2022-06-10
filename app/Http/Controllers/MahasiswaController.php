@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use PDF;
 use App\Models\Kelas;
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use App\Models\Mahasiswa_MataKuliah;
 use Illuminate\Support\Facades\DB;
+use App\Models\Mahasiswa_MataKuliah;
+use Illuminate\Support\Facades\Storage;
+use function PHPUnit\Framework\fileExists;
 
 class MahasiswaController extends Controller
 {
@@ -78,6 +81,12 @@ class MahasiswaController extends Controller
         $mahasiswa->Alamat = $request->get('Alamat');
         $mahasiswa->Tanggal_lahir = $request->get('Tanggal_lahir');
 
+        if ($request->file('image')) {
+            $image_name = $request->file('image')->store('images', 'public');
+        }
+
+        $mahasiswa->image = $image_name;
+
         $mahasiswa->save();
 
         $kelas = new Kelas;
@@ -127,6 +136,7 @@ class MahasiswaController extends Controller
      */
     public function update(Request $request, $Nim)
     {
+
         $request->validate([
             'Nim' => 'required',
             'Nama' => 'required',
@@ -141,10 +151,17 @@ class MahasiswaController extends Controller
         $mahasiswa->nim = $request->get('Nim');
         $mahasiswa->nama = $request->get('Nama');
         $mahasiswa->kelas_id = $request->get('Kelas');
+        $mahasiswa->image = $request->get('image');
         $mahasiswa->Jurusan = $request->get('Jurusan');
+        if ($mahasiswa->image && fileExists(storage_path('app/public' . $mahasiswa->image))) {
+            Storage::delete('public/' . $mahasiswa->image);
+        }
         $mahasiswa->Email = $request->get('Email');
         $mahasiswa->Alamat = $request->get('Alamat');
         $mahasiswa->Tanggal_lahir = $request->get('Tanggal_lahir');
+
+        $image_name = $request->file('image')->store('images', 'public');
+        $mahasiswa->image = $image_name;
 
         // Mahasiswa::find($Nim)->update($request->all());
 
@@ -154,7 +171,6 @@ class MahasiswaController extends Controller
         //fungsi eloquent untuk mengupdate data baru dengan relasi belongsTo
         $mahasiswa->kelas()->associate($kelas);
         $mahasiswa->save();
-
         //jika data berhasil diupdate, akan kembali ke halaman utama
         return redirect()->route('mahasiswa.index')
             ->with('success', 'Mahasiswa Berhasil Diupdate');
@@ -177,6 +193,16 @@ class MahasiswaController extends Controller
     {
         $mhs = Mahasiswa::with('kelas')->where("nim", $nim)->first();
         $matkul = Mahasiswa_Matakuliah::with("matakuliah")->where("mahasiswa_id", ($mhs->id_mahasiswa))->get();
+        // $matkul = Mahasiswa_Matakuliah::where('matakuliah_id', ($mhs -> id_mahasiswa))->first();
         return view('mahasiswa.nilai', ['mahasiswa' => $mhs, 'matakuliah' => $matkul]);
+    }
+
+    public function downloadpdf($nim)
+    {
+        $mhs = Mahasiswa::with('kelas')->where("nim", $nim)->first();
+        $matkul = Mahasiswa_Matakuliah::with("matakuliah")->where("mahasiswa_id", ($mhs->id_mahasiswa))->get();
+        // $matkul = Mahasiswa_Matakuliah::where('matakuliah_id', ($mhs -> id_mahasiswa))->first();
+        $pdf = PDF::loadview('mahasiswa.cetak', ['mahasiswa' => $mhs, 'matakuliah' => $matkul])->setOptions(['defaultFont' => 'sans-serif']);
+        return $pdf->stream();
     }
 }

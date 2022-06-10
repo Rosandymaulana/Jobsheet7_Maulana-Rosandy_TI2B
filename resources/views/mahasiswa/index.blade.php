@@ -29,6 +29,7 @@
         <th>Nama</th>
         <th>Kelas</th>
         <th>Jurusan</th>
+        <th>Foto</th>
         <th>Email</th>
         <th>Alamat</th>
         <th>Tanggal Lahir</th>
@@ -40,6 +41,7 @@
         <td>{{ $mhs ->nama }}</td>
         <td>{{ $mhs ->kelas->nama_kelas }}</td>
         <td>{{ $mhs ->jurusan }}</td>
+        <td><img src="{{ asset('storage/'.$mhs->image) }}" alt="" width="50px" height="50px"></td>
         <td>{{ $mhs ->Email }}</td>
         <td>{{ $mhs ->Alamat }}</td>
         <td>{{ $mhs ->Tanggal_lahir }}</td>

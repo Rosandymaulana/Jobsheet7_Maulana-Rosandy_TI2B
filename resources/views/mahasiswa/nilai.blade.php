@@ -9,13 +9,15 @@
             <h1 class="text-center">KARTU HASIL STUDI (KHS)</h1>
         </div>
 
-            <ul class="" style="list-style-type: none;">
-                <li><b>Nama : </b>{{$mahasiswa->nama}}</li>
-                <li><b>Nim : </b>{{$mahasiswa->nim}}</li>
-                <li><b>Kelas : </b>{{$mahasiswa->kelas->nama_kelas}}</li>
+            <ul class="d-flex" style="list-style-type: none;">
+                <div class="">
+                    <li><b>Nama : </b>{{$mahasiswa->nama}}</li>
+                    <li><b>Nim : </b>{{$mahasiswa->nim}}</li>
+                    <li><b>Kelas : </b>{{$mahasiswa->kelas->nama_kelas}}</li>
+                </div>
             </ul>
-
-
+         
+          
         <table class="table table-bordered">
             <thead>
                 <th>Mata Kuliah</th>
@@ -43,5 +45,6 @@
             </tbody>
         </table>
         <a class="btn btn-success" href="{{ route('mahasiswa.index') }}">Kembali</a>
+        <a class="btn btn-warning" href="{{ route('downloadpdf', $mahasiswa->nim) }}">Cetak KHS</a>
     </div>
 </div>

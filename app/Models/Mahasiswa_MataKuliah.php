@@ -14,6 +14,7 @@ class Mahasiswa_MataKuliah extends Model
         'mahasiswa_id',
         'matakuliah_id',
         'nilai',
+        'foto',
     ];
 
     public function mahasiswa()
